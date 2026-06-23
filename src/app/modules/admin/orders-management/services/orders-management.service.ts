@@ -34,10 +34,10 @@ export class OrdersManagementService {
     return this._http.get<any>(url);
   }
 
-  cancelSale(saleId: string): Observable<any> {
-    return this._http.patch<any>(
-      `${environment.serverUrl}/api/sales/${saleId}`,
-      { status: 'CANCELED' }
+  cancelSale(orderId: string): Observable<any> {
+    return this._http.post<any>(
+      `${environment.serverUrl}/api/sales/cancel-by-order/${orderId}`,
+      {}
     );
   }
 }

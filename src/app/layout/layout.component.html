@@ -1,0 +1,357 @@
+<nav
+  class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+>
+  <!-- @if(userCompliance.profile_status === 'INCOMPLETE'){
+  <a
+    class="bg-[#F5AC41] w-full p-3 text-center flex items-center justify-center"
+    [routerLink]="['/finance']"
+    [queryParams]="{ tab: 'identify' }"
+  >
+    <span class="material-symbols-rounded mr-2"> warning </span>
+    <h1 class="font-medium">
+      Você precisa completar o seu cadastro para utilizar os recursos da
+      Kursinha. Clique aqui verificar a sua conta.
+    </h1>
+  </a>
+} -->
+<!-- 
+  @if(userCompliance?.profile_status === 'INCOMPLETE'){
+  <div
+    class="bg-[#F5AC41] w-full p-3 text-center flex items-center justify-center"
+    [routerLink]="['/finance']"
+    [queryParams]="{ tab: 'identify' }"
+  >
+    <span class="material-symbols-rounded mr-2"> warning </span>
+    <h1 class="font-medium">
+      Complete o seu cadastro para liberar todos os recursos.
+      <strong>Clique aqui.</strong>
+    </h1>
+  </div>
+  } @if(this?.kycRequired && userCompliance?.profile_status ===
+  'BASIC_COMPLETED'){
+  <div
+    class="bg-[#F5AC41] w-full p-3 text-center flex items-center justify-center"
+    [routerLink]="['/finance']"
+    [queryParams]="{ tab: 'identify' }"
+  >
+    <span class="material-symbols-rounded mr-2"> warning </span>
+    <h1 class="font-medium">
+      Parabéns pela primeira venda! Envie os documentos para ativar os saques.
+      <strong>Clique aqui.</strong>
+    </h1>
+  </div>
+  } -->
+
+  <div class="px-3 py-3 lg:px-5 lg:pl-3">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center justify-start rtl:justify-end">
+        <button
+          data-drawer-target="logo-sidebar"
+          data-drawer-toggle="logo-sidebar"
+          aria-controls="logo-sidebar"
+          type="button"
+          class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        >
+          <span class="sr-only">Open sidebar</span>
+          <svg
+            class="w-6 h-6"
+            aria-hidden="true"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clip-rule="evenodd"
+              fill-rule="evenodd"
+              d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
+            ></path>
+          </svg>
+        </button>
+        <a href="https://Kursinha.com" class="flex ms-2 md:me-24">
+          <img
+            src="assets/img/logo_h.png"
+            class="h-8 me-3 block dark:hidden"
+            alt="Kursinha Logo"
+          />
+
+          <img
+            src="assets/img/logo_v.png"
+            class="h-8 me-3 hidden dark:block"
+            alt="Kursinha Logo"
+          />
+        </a>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 relative" #dropdownTheme>
+          <!-- Botão de ativação -->
+          <button (click)="toggleDropdownTheme()" class="p-2">
+            <span
+              class="material-symbols-rounded text-[24px] text-gray-700 dark:text-gray-100"
+            >
+              {{ getIcon() }}
+            </span>
+          </button>
+
+          <!-- Dropdown -->
+          <div
+            *ngIf="dropdownThemeOpen"
+            class="absolute top-12 right-0 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 flex gap-2 px-3 py-2"
+          >
+            <button
+              *ngFor="let option of themeOptions"
+              (click)="setTheme(option.value)"
+              class="flex items-center gap-1 px-3 py-1 rounded-md text-sm transition border border-transparent hover:bg-primary-600"
+              [ngClass]="{
+                'bg-cyan-100 text-cyan-800 dark:bg-primary-600 dark:text-white':
+                  currentTheme === option.value
+              }"
+            >
+              <span
+                class="material-symbols-rounded text-[20px] text-gray-700 dark:text-white"
+              >
+                {{
+                  option.value === "auto"
+                    ? appliedTheme === "dark"
+                      ? "dark_mode"
+                      : "light_mode"
+                    : option.icon
+                }}
+              </span>
+              <span class="text-gray-700 dark:text-white">{{
+                option.label
+              }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="relative" #dropdownRef>
+          <button
+            (click)="toggleDropdownUserOptions()"
+            class="text-white rounded-full"
+            [class.p-2]="profileImageUrl"
+          >
+            <div
+              class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center relative"
+            >
+              <!-- Preview da imagem -->
+
+              <img
+                class="size-10 object-cover rounded-full"
+                [src]="profileImageUrl"
+                alt="user photo"
+                [class.hidden]="!profileImageUrl"
+              />
+
+              <!-- Ícone padrão (mostra quando não tem foto) -->
+              <svg
+                class="w-6 h-6 text-gray-400"
+                [class.hidden]="profileImageUrl"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+          </button>
+
+          <div
+            *ngIf="dropdownOpen"
+            class="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg z-50"
+          >
+            <a routerLink="/dashboard" class="block px-4 py-2 hover:bg-gray-100"
+              >Dashboard</a
+            >
+            <a routerLink="/myprofile" class="block px-4 py-2 hover:bg-gray-100"
+              >Perfil</a
+            >
+            <a routerLink="/sign-out" class="block px-4 py-2 hover:bg-gray-100"
+              >Sair</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<aside
+  id="logo-sidebar"
+  class="fixed left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+  aria-label="Sidebar"
+  [ngClass]="{
+    'top-14': showComplianceAlert,
+    'top-0': !showComplianceAlert
+  }"
+>
+  <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+    <!-- custom-select.component.html -->
+    <ng-container *ngIf="!isAdmin">
+      <div class="relative w-full pb-4 pt-3">
+        <button
+          (click)="toggleDropdownUserRole()"
+          class="w-full px-4 py-2 text-left bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex justify-between items-center"
+        >
+          <span class="text-gray-900 dark:text-white">{{
+            selectedOptionUserRole.label
+          }}</span>
+          <svg
+            class="w-5 h-5 ml-2 -mr-1 text-gray-400 dark:text-gray-300"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            [class.transform]="isOpenDropdownUserRole"
+            [class.rotate-180]="isOpenDropdownUserRole"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+
+        <div
+          *ngIf="isOpenDropdownUserRole"
+          class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-900 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 dark:ring-white dark:ring-opacity-10"
+        >
+          <ul
+            class="py-1 overflow-auto text-base rounded-md max-h-60 focus:outline-none"
+          >
+            <li
+              *ngFor="let option of options"
+              (click)="selectOptionUserRole(option)"
+              [ngClass]="{
+                'px-4 py-2 dark:text-white cursor-pointer hover:bg-blue-100': true,
+                'font-semibold bg-blue-50 text-gray-800 dark:text-gray-500':
+                  option.value === selectedOptionUserRole.value,
+                'dark:hover:bg-gray-700 dark:bg-gray-800':
+                  option.value === selectedOptionUserRole.value,
+                'dark:hover:bg-gray-700':
+                  option.value !== selectedOptionUserRole.value
+              }"
+            >
+              {{ option.label }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </ng-container>
+
+    <ul class="space-y-2">
+      <ng-container *ngIf="isLoadingMenuItems; else menuItems1">
+        <div class="flex items-center justify-center">
+          <app-loading-spinner
+            heightClass="h-7"
+            widthClass="w-7"
+          ></app-loading-spinner>
+        </div>
+      </ng-container>
+
+      <ng-template #menuItems1>
+        <li *ngFor="let item of menuItems">
+          <!-- Link "basic" -->
+          <a
+            *ngIf="item.type === 'basic'"
+            [routerLink]="item.lock ? null : item.link"
+            (click)="onClickMenu($event, item)"
+            class="flex font-normal items-center p-2 text-[#343a40] rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group hover:font-medium"
+            [class.opacity-60]="item.lock"
+            [class.cursor-not-allowed]="item.lock"
+          >
+            <span class="material-symbols-rounded text-[#78909E] mr-2">
+              {{ item.icon }}
+            </span>
+
+            <span class="ms-1">{{ item.title }}</span>
+
+            <!-- Cadeado quando bloqueado -->
+            <span
+              *ngIf="item.lock"
+              class="material-symbols-rounded text-[#B0BEC5] ml-2 text-xl"
+              aria-label="Bloqueado"
+            >
+              lock
+            </span>
+          </a>
+
+          <!-- Dropdown -->
+          <div *ngIf="item.type === 'collapsable'">
+            <button
+              type="button"
+              (click)="onClickMenu($event, item, 'toggle')"
+              class="flex items-center p-2 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+              [class.opacity-60]="item.lock"
+              [class.cursor-not-allowed]="item.lock"
+            >
+              <span class="flex-1 ml-3 text-left whitespace-nowrap">
+                {{ item.title }}
+              </span>
+
+              <!-- Ícone: cadeado se bloqueado; chevron caso contrário -->
+              <span
+                *ngIf="item.lock"
+                class="material-symbols-rounded text-[#B0BEC5]"
+              >
+                lock
+              </span>
+              <svg
+                *ngIf="!item.lock"
+                aria-hidden="true"
+                class="w-6 h-6"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </button>
+
+            <ul *ngIf="item.open && !item.lock" class="py-2 space-y-2">
+              <li *ngFor="let child of item.children">
+                <a
+                  [routerLink]="child.lock ? null : child.link"
+                  (click)="onClickMenu($event, child)"
+                  class="flex items-center p-2 pl-11 w-full text-base font-normal text-gray-900 rounded-lg transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                  [class.opacity-60]="child.lock"
+                  [class.cursor-not-allowed]="child.lock"
+                >
+                  <span class="flex-1">{{ child.title }}</span>
+                  <span
+                    *ngIf="child.lock"
+                    class="material-symbols-rounded text-[#B0BEC5] ml-2"
+                    aria-label="Bloqueado"
+                    >lock</span
+                  >
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ng-template>
+    </ul>
+  </div>
+</aside>
+
+<div
+  class="pr-4 pb-[60px] sm:pl-64 sm:mx-auto dark:bg-gray-900 max-w-screen-2xl"
+  [ngClass]="{
+    'pt-[125px]': showComplianceAlert,
+    'pt-[60px]': !showComplianceAlert
+  }"
+>
+  <!-- <div
+    class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14"
+  >
+    Matheus Manuel
+  </div> -->
+
+  <router-outlet></router-outlet>
+</div>

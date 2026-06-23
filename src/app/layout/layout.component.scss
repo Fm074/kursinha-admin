@@ -1,0 +1,12 @@
+/* custom-select.component.css */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.transform {
+  transition: transform 200ms ease;
+}
+
+:host {
+  display: block;
+}

@@ -1,0 +1,118 @@
+/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input {
+  @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+}
+
+.btn-primary {
+  @apply text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5;
+}
+
+.btn-secondary {
+  @apply text-gray-700 border border-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:text-white dark:border-gray-600;
+}
+
+input::placeholder {
+  color: #9ca3af !important;
+}
+
+.swal2-popup {
+  font-family: "Inter", sans-serif;
+
+  .swal2-confirm {
+    @apply bg-blue-600 hover:bg-blue-700;
+  }
+
+  .swal2-cancel {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800;
+  }
+
+  .swal2-title {
+    @apply text-xl font-semibold;
+  }
+}
+
+.modern-analytics-modal {
+  .swal2-close {
+    @apply text-gray-400 hover:text-gray-600 focus:outline-none;
+    font-size: 1.5rem;
+    top: 1.5rem;
+    right: 1.5rem;
+  }
+
+  .swal2-popup {
+    @apply rounded-xl shadow-2xl border border-gray-100;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+/* Animações para o modal */
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.swal2-show {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Estilos globais para suportar dark mode nos modais do SweetAlert2 */
+.swal2-popup.dark {
+  background-color: #1f2937 !important; /* bg-gray-800 */
+  color: #e5e7eb !important; /* text-gray-200 */
+  border: 1px solid #374151 !important; /* border-gray-700 */
+}
+
+.swal2-title.dark,
+.swal2-html-container.dark {
+  color: #f9fafb !important; /* text-white */
+}
+
+.swal2-confirm.dark,
+.swal2-cancel.dark {
+  background-color: #2563eb !important; /* bg-blue-600 */
+  color: white !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* === Scrollbar minimalista estilo ChatGPT === */
+::-webkit-scrollbar {
+  height: 6px; /* altura da barra */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(120, 120, 120, 0.3);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(120, 120, 120, 0.5);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Firefox */
+*{
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 120, 0.3) transparent;
+}

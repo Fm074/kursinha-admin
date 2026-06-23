@@ -1,0 +1,9 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 10" width="660" height="10">
+	<title>Subtract</title>
+	<defs>
+		<image  width="662" height="11" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAApYAAAALCAMAAADySz2MAAAAAXNSR0IB2cksfwAAAMNQTFRF3eTo/////f3++/v85ert5+3v/f7+6u7w+vv87PDy4+nt4efr7fHz+Pn69vj58PP13+Xp9Pb48vT29Pf47/L04+ns+Pr73+Xp3eTo3eXp3eTq3eXp4+rt3eXp5evu3+Xq3uTo3+bq3uTp2uTn3eXo3eTp3+Xs3eTo6+/y2eLl3OTo3ebq6e7wAAAA2+Tm3+bq3+Tq3+fr2uTq19/n39/v1+fn5+zv3OToz9/f3+Tq2+Pn3OLp3uTp4Obq3ebo7vHz6/Dy5GFF/gAAAEF0Uk5T//////////////////////////////9/j3+Pn/+v/++/b89g3+9P3/9Qz2//AHD/Xz8wIBAg/78QMEBQ7+9v//+2Oa9QAAACuElEQVR4nO3VfXeaMBQGcIp2amOdWqaIpW7VDuuMe1Hn7Mva7/+pRkIS7r3EA+7FeTjmz98hCM/DjY5zWqd1hOvstE7ryNa/+Szdg0Cp1/95/WMpLv4sK/ge1fM3BGoY6tUGgYvG2b7Amn8Ml38BWuwtgXYu0C0d1sXQZVc54L2jwFoUenlwXt7iXMfpM/h6deZjuGSDIA/8DAyvIbTYIMTQtsANhM5o8B7l3h19uEW5WwEV4Y3GE1SEd/dxgmK2AorIiwg094dpdL8/jBG409mnCRwHdz4LSltc/BwOX3y+Ald84XzBCPTBLHujewJ3EnoAvlohfVYvItCMvv0WwFSn0bIArDIAiojLjwHkHpe/5GuQewIgd/f7JgYQs1vd/LBBjQAYmHo1lGCeq34xLAJlLc6LH93h8fs24RbOtwCWGKYJPOTCox5u2bWAJw3zBMbPBBbPXQI6d1k+AlEtB0VoMLm7omsOYq5nQFRrh4oGnwDzeTEIdkJ8aFlhlQEzMBrMwLTYTwHlLE4+hyNeLxlufQ+uh1tv4Xq4EcCuU1DVmsyKgE9ANWmBbVHQ5ZvcU1C5A0hyV10DaGtQRaSgigCQ5N4ZGUhyl4cWB7lD6FlBHmsIxKGloIKgDMUNCCS/4kgTk5pu2QVpk2q4EYjhRhASWAtIy+fJ32NaLU/+HhGI3DsI4tzT8lXuabUq5gykXWswXasQC0BEQJ1RdtjmghwYdUbJJQcGwZMF9Ckm14GKuzlUcfoeyWcZD/cL2MLFYL6ALQWhAcqX0ATVFoQpKM4GQR6sBCwhDK8JhHkQ5w7Ll7nPMdzmQ82cYglMGubQ2gU1c4opeDVnlB3KVpwC9Vny7QZtscADhUcUuoBZHowpLOg9FpkrKPTplj6qthiEFIb7g08g8PmesAoGBIYUQgJrCuUqTl/xC/vfB1DixafBAAAAAElFTkSuQmCC"/>
+	</defs>
+	<style>
+	</style>
+	<use id="Background" href="#img1" x="-1" y="-1"/>
+</svg>

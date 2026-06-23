@@ -1,0 +1,38 @@
+<div class="flex flex-wrap items-center gap-3 mb-6">
+  <!-- Botões de presets -->
+  <ng-container *ngFor="let preset of presets">
+    <button
+      type="button"
+      (click)="onSelectPreset(preset.value)"
+      [ngClass]="{
+        'bg-blue-600 text-white': selectedPreset === preset.value,
+        'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border dark:border-gray-600':
+          selectedPreset !== preset.value
+      }"
+      class="px-4 py-2 text-sm rounded-lg border hover:bg-blue-500 hover:text-white transition"
+    >
+      {{ preset.label }}
+    </button>
+  </ng-container>
+
+  <!-- Custom range -->
+  <div *ngIf="selectedPreset === 'custom'" class="flex items-center gap-2">
+    <input
+      type="date"
+      [(ngModel)]="customStartDate"
+      class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <span class="text-gray-600 dark:text-gray-300">até</span>
+    <input
+      type="date"
+      [(ngModel)]="customEndDate"
+      class="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    <button
+      (click)="applyCustomRange()"
+      class="ml-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition"
+    >
+      Aplicar
+    </button>
+  </div>
+</div>

@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.maintenance-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: radial-gradient(circle at top left, #fef3c7 0%, #fff7ed 70%, #ffedd5 100%);
+  border: 1px solid #fcd34d;
+  border-radius: 1rem;
+  padding: 1.1rem 1.4rem;
+  box-shadow: 0 20px 45px rgba(253, 186, 116, 0.25);
+  color: #92400e;
+  flex-wrap: wrap;
+}
+
+.maintenance-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.maintenance-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.maintenance-title {
+  margin: 0;
+  font-weight: 600;
+  color: #c2410c;
+  font-size: 1rem;
+}
+
+.maintenance-message {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #7c2d12;
+}
+
+.maintenance-action {
+  border: none;
+  background-color: #f97316;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.55rem 1.35rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+}
+
+.maintenance-action:hover {
+  background-color: #ea580c;
+  transform: translateY(-1px);
+}
+
+.maintenance-action:focus-visible {
+  outline: 3px solid rgba(249, 115, 22, 0.5);
+  outline-offset: 2px;
+}

@@ -1,0 +1,1 @@
+export const MIN_WITHDRAWAL: number = 10000;

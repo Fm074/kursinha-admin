@@ -1,0 +1,247 @@
+<div class="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm">
+  <app-header-admin
+    title="Gestão de Vendas"
+    description="Visualize e gerencie todas as vendas realizadas na plataforma. Acompanhe estatísticas de faturamento, comissões, reembolsos e tenha controle total sobre suas transações."
+  ></app-header-admin>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+    <app-kpi-card
+      label="Total de Vendas"
+      [value]="stats.totalSales"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V9a4 4 0 00-8 0v2H6v6h12v-6h-2z"/></svg>'
+      iconBgClass="bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Total Faturado"
+      [value]="stats.totalRevenue"
+      [isCurrency]="true"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      iconBgClass="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Receita Líquida"
+      [value]="stats.netRevenue"
+      [isCurrency]="true"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      iconBgClass="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Total de Reembolsos"
+      [value]="stats.totalRefunds"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"/></svg>'
+      iconBgClass="bg-red-50 dark:bg-red-900/20 text-red-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Valor Reembolsado"
+      [value]="stats.refundAmount"
+      [isCurrency]="true"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      iconBgClass="bg-rose-50 dark:bg-rose-900/20 text-rose-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Total de Comissões"
+      [value]="stats.totalCommissions"
+      [isCurrency]="true"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>'
+      iconBgClass="bg-purple-50 dark:bg-purple-900/20 text-purple-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Atividades Suspeitas"
+      [value]="stats.suspiciousActivities"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>'
+      iconBgClass="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600"
+    ></app-kpi-card>
+  </div>
+
+  <!-- Filtro por Período -->
+  <app-period-filter
+    (periodSelected)="onFilterByPeriod($event)"
+  ></app-period-filter>
+
+  <!-- Botões de Tipos de Gráfico -->
+  <div class="flex gap-2 my-4">
+    <button
+      *ngFor="let tipo of tiposDeGrafico"
+      (click)="onChartTypeSelect(tipo)"
+      [ngClass]="{
+        'bg-blue-600 text-white': currentChartType === tipo,
+        'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border':
+          currentChartType !== tipo
+      }"
+      class="px-4 py-2 text-sm rounded-lg border hover:bg-blue-500 hover:text-white transition"
+    >
+      {{ tipo | titlecase }}
+    </button>
+  </div>
+  
+  <app-sales-chart [chartData]="salesData" [chartType]="currentChartType"></app-sales-chart>
+
+  <!-- Lista de Vendas -->
+  <div
+    class="bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 space-y-4 mt-6"
+  >
+    <!-- Filtros -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Buscar por comprador ou ID"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+        />
+        <svg class="w-4 h-4 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="onFilterChange()"
+        class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+      >
+        <option value="">Todos os Status</option>
+        <option value="paid">Pago</option>
+        <option value="pending">Pendente</option>
+        <option value="failed">Falhou</option>
+        <option value="refunded">Reembolsado</option>
+      </select>
+
+      <select
+        [(ngModel)]="selectedPaymentMethod"
+        (change)="onFilterChange()"
+        class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+      >
+        <option value="">Todos os Métodos</option>
+        <option value="EXPRESS">Multicaixa Express</option>
+        <option value="REF">Referência</option>
+      </select>
+
+      <select
+        [(ngModel)]="selectedProduct"
+        (change)="onFilterChange()"
+        class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+      >
+        <option value="">Todos os Produtos</option>
+        <!-- Mock products -->
+        <option value="p1">Curso de Marketing</option>
+        <option value="p2">E-book de Gestão</option>
+      </select>
+    </div>
+
+    <!-- Tabela -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-600 dark:text-gray-200">
+        <thead
+          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400"
+        >
+          <tr>
+            <th class="px-4 py-3">ID</th>
+            <th class="px-4 py-3">Produto</th>
+            <th class="px-4 py-3">Cliente</th>
+            <th class="px-4 py-3">Valor</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Data</th>
+            <th class="px-4 py-3">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let venda of getPaginatedVendas()"
+            class="bg-white dark:bg-gray-900 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+          >
+            <td class="px-4 py-3 font-mono text-xs">{{ venda.id }}</td>
+            <td class="px-4 py-3">{{ venda.product?.name || venda.produto }}</td>
+            <td class="px-4 py-3">
+              <div class="flex flex-col">
+                <span class="font-medium text-gray-900 dark:text-white">{{ venda.buyer?.name || venda.cliente }}</span>
+                <span class="text-xs text-gray-500">{{ venda.buyer?.email }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">Kz {{ venda.amount || venda.valor | number : "1.2-2" }}</td>
+            <td class="px-4 py-3">
+              <span
+                class="px-2 py-1 text-xs font-bold rounded-full uppercase tracking-tighter"
+                [ngClass]="{
+                  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': venda.status === 'paid' || venda.status === 'pago',
+                  'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': venda.status === 'pending' || venda.status === 'pendente',
+                  'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400': venda.status === 'failed' || venda.status === 'refunded' || venda.status === 'reembolsado'
+                }"
+              >
+                {{ venda.status === 'paid' ? 'Pago' : (venda.status === 'pending' ? 'Pendente' : (venda.status === 'refunded' ? 'Reembolsado' : venda.status)) | titlecase }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <span class="text-xs">{{ venda.createdAt || venda.data | date : "short" }}</span>
+            </td>
+            <td class="px-4 py-3">
+              <button
+                (click)="abrirDetalhes(venda)"
+                class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Ver
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginação -->
+    <div class="pagination-wrapper pt-4 border-t dark:border-gray-800" *ngIf="totalItens > itensPorPagina">
+      <div class="pagination">
+        <button 
+          (click)="onPageChange(paginaAtual - 1)"
+          [disabled]="paginaAtual === 1"
+          class="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 disabled:opacity-50 text-xs font-medium dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm"
+        >
+          Anterior
+        </button>
+        
+        <ng-container *ngFor="let page of getPageNumbers()">
+          <button 
+            *ngIf="page !== '...'"
+            (click)="onPageChange(page)"
+            [class.bg-blue-600]="paginaAtual === page"
+            [class.text-white]="paginaAtual === page"
+            [class.border-blue-600]="paginaAtual === page"
+            class="w-9 h-9 rounded-md border border-gray-300 dark:border-gray-700 text-xs font-bold transition shadow-sm hover:border-blue-500 dark:hover:border-blue-400 dark:text-gray-200"
+          >
+            {{ page }}
+          </button>
+          <span 
+            *ngIf="page === '...'"
+            class="px-2 py-2 text-gray-500"
+          >
+            ...
+          </span>
+        </ng-container>
+
+        <button 
+          (click)="onPageChange(paginaAtual + 1)"
+          [disabled]="paginaAtual === getTotalPages()"
+          class="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 disabled:opacity-50 text-xs font-medium dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm"
+        >
+          Próximo
+        </button>
+      </div>
+      <div class="mt-2 text-center text-xs text-gray-500">
+        Mostrando {{ (paginaAtual - 1) * itensPorPagina + 1 }} a {{ Math.min(paginaAtual * itensPorPagina, totalItens) }} de {{ totalItens }} resultados
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Detalhes -->
+<app-sales-details-modal
+  [isOpen]="modalAberto"
+  [venda]="vendaSelecionada"
+  (close)="modalAberto = false"
+  (reembolsar)="reembolsarVenda($event)"
+></app-sales-details-modal>

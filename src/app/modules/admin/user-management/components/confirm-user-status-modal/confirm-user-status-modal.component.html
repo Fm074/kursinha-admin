@@ -1,0 +1,31 @@
+<div
+  *ngIf="open"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+>
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+    <div class="p-6">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">
+        {{ title }}
+      </h3>
+      <p class="text-gray-600 mb-6">
+        {{ message }}
+      </p>
+      <div class="flex justify-end space-x-3">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="onConfirm()"
+          class="px-4 py-2 text-sm font-medium text-white bg-{{ confirmButtonColor }}-600 rounded-md hover:bg-{{ confirmButtonColor }}-700 focus:outline-none"
+        >
+          {{ confirmButtonText }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

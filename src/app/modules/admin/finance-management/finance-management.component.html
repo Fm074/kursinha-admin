@@ -1,0 +1,736 @@
+<div class="min-h-screen dark:bg-gray-900 p-4 md:p-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Saques</h1>
+    <p class="text-gray-600 dark:text-gray-400"></p>
+  </div>
+
+  <!-- <app-header-admin description="Gerencie saques, relatórios e configurações financeiras" title="Painel Financeiro"></app-header-admin> -->
+
+  <!-- Filters and Export -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden">
+    <div class="flex flex-col md:flex-row gap-3">
+      <select
+        [(ngModel)]="filters.transactionType"
+        (change)="onFilterChange()"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+      >
+        <option value="all">Todas transações</option>
+        <option value="sales">Vendas</option>
+        <option value="withdrawals">Saques</option>
+         <option value="commissions">Comissões</option>
+      </select>
+
+      <select
+        [(ngModel)]="filters.period"
+        (change)="onFilterChange()"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+      >
+        <option value="7d">Últimos 7 dias</option>
+        <option value="30d">Últimos 30 dias</option>
+        <!-- <option value="custom">Personalizado</option> -->
+      </select>
+    </div>
+
+    <div class="flex justify-end">
+      <button
+        (click)="exportReport('csv')"
+        class="text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2.5 mr-2 dark:bg-gray-600 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800"
+      >
+        <i class="fas fa-file-csv mr-2"></i>Exportar CSV
+      </button>
+      <button
+        (click)="exportReport('excel')"
+        class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2.5 dark:bg-green-600 dark:hover:bg-green-700 focus:outline-none dark:focus:ring-green-800"
+      >
+        <i class="fas fa-file-excel mr-2"></i>Exportar Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 hidden">
+    <div
+      class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    >
+      <div class="flex items-center">
+        <div
+          class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500"
+        >
+          <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            Total Movimentado
+          </p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+            Kz {{ kpis.totalMovement | number }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    >
+      <div class="flex items-center">
+        <div
+          class="p-3 mr-4 text-green-500 bg-green-100 rounded-full dark:text-green-100 dark:bg-green-500"
+        >
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            Total de Saques
+          </p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+            Kz {{ kpis.totalWithdrawn | number }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+    >
+      <div class="flex items-center">
+        <div
+          class="p-3 mr-4 text-purple-500 bg-purple-100 rounded-full dark:text-purple-100 dark:bg-purple-500"
+        >
+          <i class="fas fa-hand-holding-usd"></i>
+        </div>
+        <div>
+          <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+            Comissões Pagas
+          </p>
+          <p class="text-2xl font-semibold text-gray-900 dark:text-white">
+            Kz {{ kpis.totalCommissions | number }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div
+    class="p-6 mb-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 hidden"
+  >
+    <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+      Movimentação Diária
+    </h3>
+    <div id="chart">
+      <apx-chart
+        #chart
+        [series]="chartOptions.series"
+        [chart]="chartOptions.chart"
+        [xaxis]="chartOptions.xaxis"
+        [yaxis]="chartOptions.yaxis"
+        [stroke]="chartOptions.stroke"
+        [tooltip]="chartOptions.tooltip"
+        [dataLabels]="chartOptions.dataLabels"
+        [legend]="chartOptions.legend"
+      ></apx-chart>
+      <!-- [colors]="chartOptions.colors" -->
+    </div>
+  </div>
+
+  <!-- Withdrawals Table -->
+  <div
+    class="mb-6 overflow-x-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+  >
+    <div class="p-4 border-b dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        Solicitações de Saque
+      </h3>
+    </div>
+    <div class="relative overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead
+          class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+        >
+          <tr>
+            <th scope="col" class="px-6 py-3">Nome</th>
+            <th scope="col" class="px-6 py-3">Tipo</th>
+            <th scope="col" class="px-6 py-3">Valor</th>
+            <th scope="col" class="px-6 py-3">Método</th>
+            <th scope="col" class="px-6 py-3">Status</th>
+            <th scope="col" class="px-6 py-3">Data</th>
+            <th scope="col" class="px-6 py-3">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let withdrawal of withdrawals"
+            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+          >
+            <td
+              class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+            >
+              {{ withdrawal?.client?.name }}
+            </td>
+            <td class="px-6 py-4">
+              <span
+                class="text-xs font-medium px-2.5 py-0.5 rounded {{
+                  getUserTypeBadge(withdrawal.userType)
+                }}"
+              >
+                {{ getUserTypeText(withdrawal.userType) }}
+              </span>
+            </td>
+            <td class="px-6 py-4 font-medium">
+              Kz {{ withdrawal.amount | number }}
+            </td>
+            <td class="px-6 py-4">
+              {{ getPaymentMethodText(withdrawal.paymentMethod) }}
+            </td>
+            <td class="px-6 py-4">
+              <span
+                class="text-xs font-medium px-2.5 py-0.5 rounded {{
+                  getStatusBadge(withdrawal.status)
+                }}"
+              >
+                {{ getStatusText(withdrawal.status) }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              {{ withdrawal.createdAt | date : "dd/MM/yyyy" }}
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex space-x-2">
+                <button
+                  *ngIf="withdrawal.status === 'PENDING'"
+                  (click)="
+                    approveWithdrawal(withdrawal); $event.stopPropagation()
+                  "
+                  class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-3 py-1.5"
+                >
+                  Aprovar
+                </button>
+                <button
+                  *ngIf="withdrawal.status === 'PENDING'"
+                  (click)="
+                    rejectWithdrawal(withdrawal); $event.stopPropagation()
+                  "
+                  class="text-white bg-red-600 hover:bg-red-700 font-medium rounded text-sm px-3 py-1.5"
+                >
+                  Recusar
+                </button>
+                <button
+                  class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-sm px-3 py-1.5"
+                  (click)="
+                    openWithdrawalDetails(withdrawal); $event.stopPropagation()
+                  "
+                >
+                  Detalhes
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="p-4 border-t dark:border-gray-700">
+      <nav class="flex items-center justify-between">
+        <div class="text-sm text-gray-700 dark:text-gray-400">
+          Mostrando
+          <span class="font-semibold">{{
+            (currentPage - 1) * itemsPerPage + 1
+          }}</span>
+          a
+          <span class="font-semibold">{{
+            Math.min(currentPage * itemsPerPage, totalWithdrawals)
+          }}</span>
+          de
+          <span class="font-semibold">{{ totalWithdrawals }}</span>
+        </div>
+        <ul class="inline-flex -space-x-px text-sm">
+          <li>
+            <button
+              (click)="onPageChange(currentPage - 1)"
+              [disabled]="currentPage === 1"
+              class="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
+            >
+              Anterior
+            </button>
+          </li>
+          <li *ngFor="let page of [1, 2, 3]">
+            <button
+              (click)="onPageChange(page)"
+              [class.bg-blue-50]="page === currentPage"
+              class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              {{ page }}
+            </button>
+          </li>
+          <li>
+            <button
+              (click)="onPageChange(currentPage + 1)"
+              [disabled]="currentPage * itemsPerPage >= totalWithdrawals"
+              class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white disabled:opacity-50"
+            >
+              Próxima
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Fee Settings -->
+  <div
+    class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700"
+  >
+    <div class="mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+        ⚙️ Configurações de Taxas
+      </h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Defina as taxas padrão da plataforma
+      </p>
+    </div>
+
+    <form [formGroup]="feeForm" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label
+            for="serviceFeePercentage"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Taxa de Serviço (%)</label
+          >
+          <input
+            type="number"
+            id="serviceFeePercentage"
+            formControlName="serviceFeePercentage"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            min="0"
+            max="100"
+            step="0.1"
+          />
+        </div>
+
+        <div>
+          <label
+            for="withdrawalFeePercentage"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Taxa por Saque (%)</label
+          >
+          <input
+            type="number"
+            id="withdrawalFeePercentage"
+            formControlName="withdrawalFeePercentage"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            min="0"
+            max="100"
+            step="0.1"
+          />
+        </div>
+
+        <div>
+          <label
+            for="fixedWithdrawalFee"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Taxa Fixa por Saque</label
+          >
+          <input
+            type="number"
+            id="fixedWithdrawalFee"
+            formControlName="fixedWithdrawalFee"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            min="0"
+            step="0.01"
+          />
+        </div>
+
+        <div>
+          <label
+            for="minimumWithdrawalAmount"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Mínimo para Saque</label
+          >
+          <input
+            type="number"
+            id="minimumWithdrawalAmount"
+            formControlName="minimumWithdrawalAmount"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            min="0"
+            step="1"
+          />
+        </div>
+
+        <div>
+          <label
+            for="platformFeeCheckout"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Taxa no Checkout (%)</label
+          >
+          <input
+            type="number"
+            id="platformFeeCheckout"
+            formControlName="platformFeeCheckout"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            min="0"
+            max="100"
+            step="0.1"
+          />
+        </div>
+
+        <div>
+          <label
+            for="platformFee"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
+            Taxa da Plataforma (%)</label
+          >
+          <input
+            type="number"
+            id="platformFee"
+            formControlName="platformFee"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+            min="0"
+            max="100"
+            step="0.1"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="saveFeeSettings()"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          [disabled]="saving || feeForm.invalid"
+        >
+          {{ saving ? "Salvando…" : "Salvar Configurações" }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Detalhes do Saque -->
+<div
+  *ngIf="showDetailsModal && selectedWithdrawal"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+>
+  <div
+    class="w-full max-w-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl"
+  >
+    <!-- Cabeçalho -->
+    <div
+      class="flex items-start justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700"
+    >
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+          Detalhes do saque
+        </h2>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Veja as informações completas desta solicitação antes de aprovar ou
+          recusar.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+        (click)="closeWithdrawalDetails()"
+      >
+        <i class="fas fa-times text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Corpo -->
+    <div class="px-6 py-4 space-y-6 max-h-[70vh] overflow-y-auto">
+      <!-- Linha 1: Info geral -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+        >
+          <h3
+            class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2"
+          >
+            Informações do usuário
+          </h3>
+          <p class="text-sm text-gray-900 dark:text-white font-medium">
+            {{ selectedWithdrawal?.client?.name || "—" }}
+          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ getUserTypeText(selectedWithdrawal.userType) }}
+          </p>
+          <p
+            *ngIf="selectedWithdrawal?.client?.email"
+            class="mt-2 text-xs text-gray-500 dark:text-gray-400"
+          >
+            <span class="font-medium text-gray-700 dark:text-gray-300">
+              E-mail:
+            </span>
+            {{ selectedWithdrawal?.client?.email }}
+          </p>
+          <p
+            *ngIf="selectedWithdrawal?.client?.document"
+            class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+          >
+            <span class="font-medium text-gray-700 dark:text-gray-300">
+              Documento:
+            </span>
+            {{ selectedWithdrawal?.client?.document }}
+          </p>
+        </div>
+
+        <div
+          class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+        >
+          <h3
+            class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2"
+          >
+            Informações do saque
+          </h3>
+
+          <div class="flex items-center justify-between text-sm mb-2">
+            <span class="text-gray-500 dark:text-gray-400"
+              >Valor solicitado</span
+            >
+            <span class="font-semibold text-gray-900 dark:text-white">
+              Kz {{ selectedWithdrawal?.amount | number }}
+            </span>
+          </div>
+
+          <!-- <div class="flex items-center justify-between text-sm mb-2">
+            <span class="text-gray-500 dark:text-gray-400">Método</span>
+            <span class="text-gray-800 dark:text-gray-200">
+              {{ getPaymentMethodText(selectedWithdrawal?.paymentMethod) }}
+            </span>
+          </div> -->
+
+          <div class="flex items-center justify-between text-sm mb-2">
+            <span class="text-gray-500 dark:text-gray-400">Status</span>
+            <span
+              class="text-xs font-medium px-2.5 py-0.5 rounded"
+              [ngClass]="getStatusBadge(selectedWithdrawal.status)"
+            >
+              {{ getStatusText(selectedWithdrawal?.status ?? "") }}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="text-gray-500 dark:text-gray-400">Criado em</span>
+            <span class="text-gray-800 dark:text-gray-200">
+              {{ selectedWithdrawal?.createdAt | date : "dd/MM/yyyy HH:mm" }}
+            </span>
+          </div>
+
+          <div
+            *ngIf="selectedWithdrawal?.processedAt"
+            class="flex items-center justify-between text-xs"
+          >
+            <span class="text-gray-500 dark:text-gray-400">Processado em</span>
+            <span class="text-gray-800 dark:text-gray-200">
+              {{ selectedWithdrawal?.processedAt | date : "dd/MM/yyyy HH:mm" }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Linha 2: Dados bancários -->
+      <div
+        class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
+            Dados bancários para depósito
+          </h3>
+          <span
+            class="text-[11px] text-gray-500 dark:text-gray-400"
+            *ngIf="selectedWithdrawal?.info"
+          >
+            ID conta:
+            <span class="font-mono text-gray-700 dark:text-gray-300">
+              {{ selectedWithdrawal?.info?.id || "—" }}
+            </span>
+          </span>
+        </div>
+
+        <ng-container *ngIf="selectedWithdrawal?.info; else noBankData">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div class="space-y-1">
+              <p class="text-gray-500 dark:text-gray-400">Banco</p>
+              <p class="font-medium text-gray-900 dark:text-white">
+                {{ selectedWithdrawal?.info?.bankName || "—" }}
+              </p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-500 dark:text-gray-400">
+                Titular / Nome da conta
+              </p>
+              <p class="font-medium text-gray-900 dark:text-white">
+                {{ selectedWithdrawal?.info?.accountName || "—" }}
+              </p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-500 dark:text-gray-400">Nº da conta</p>
+              <p class="font-mono text-[11px] text-gray-900 dark:text-gray-100">
+                {{ selectedWithdrawal?.info?.accountNumber || "—" }}
+              </p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-500 dark:text-gray-400">Tipo de conta</p>
+              <p class="font-medium text-gray-900 dark:text-white">
+                {{
+                  getAccountTypeLabel(selectedWithdrawal?.info?.accountType) ||
+                    "—"
+                }}
+              </p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-500 dark:text-gray-400">Status da conta</p>
+              <p class="font-medium text-gray-900 dark:text-white">
+                {{
+                  selectedWithdrawal?.info?.isDefault ? "Padrão" : "Secundária"
+                }}
+              </p>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-gray-500 dark:text-gray-400">Criada em</p>
+              <p class="text-[11px] text-gray-900 dark:text-gray-100">
+                {{
+                  (selectedWithdrawal?.info?.createdAt
+                    | date : "dd/MM/yyyy HH:mm") || "—"
+                }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Informações adicionais se disponíveis no seu sistema -->
+          <div
+            class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800"
+            *ngIf="hasAdditionalBankInfo()"
+          >
+            <h4
+              class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Informações adicionais
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <!-- Adicione aqui outros campos que possam estar em info -->
+              <div class="space-y-1" *ngIf="selectedWithdrawal?.info?.swift">
+                <p class="text-gray-500 dark:text-gray-400">SWIFT / BIC</p>
+                <p
+                  class="font-mono text-[11px] text-gray-900 dark:text-gray-100"
+                >
+                  {{ selectedWithdrawal?.info?.swift }}
+                </p>
+              </div>
+
+              <div class="space-y-1" *ngIf="selectedWithdrawal?.info?.iban">
+                <p class="text-gray-500 dark:text-gray-400">IBAN</p>
+                <p
+                  class="font-mono text-[11px] text-gray-900 dark:text-gray-100 break-all"
+                >
+                  {{ selectedWithdrawal?.info?.iban }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noBankData>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Nenhuma conta bancária vinculada a esta solicitação. Verifique os
+            dados do usuário antes de processar o saque.
+          </p>
+        </ng-template>
+      </div>
+
+      <!-- Linha 3: Observações / histórico -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+        >
+          <h3
+            class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2"
+          >
+            Observações internas
+          </h3>
+          <p
+            *ngIf="selectedWithdrawal?.notes; else noNotes"
+            class="text-xs text-gray-600 dark:text-gray-300 whitespace-pre-line"
+          >
+            {{ selectedWithdrawal?.notes }}
+          </p>
+          <ng-template #noNotes>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Nenhuma observação interna registrada para este saque.
+            </p>
+          </ng-template>
+        </div>
+
+        <div
+          class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+        >
+          <h3
+            class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2"
+          >
+            Checklist para o administrador
+          </h3>
+          <ul class="text-xs text-blue-700 dark:text-blue-200 space-y-1">
+            <li>• Conferir se o IBAN e titular são válidos.</li>
+            <li>• Validar se o valor solicitado está dentro das políticas.</li>
+            <li>• Confirmar se o usuário não possui restrições de saque.</li>
+            <li>
+              • Registrar qualquer observação importante antes de aprovar.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div
+      class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+    >
+      <div class="text-[11px] text-gray-500 dark:text-gray-400">
+        ID do saque:
+        <span class="font-mono text-gray-700 dark:text-gray-300">
+          {{ selectedWithdrawal?.id || "—" }}
+        </span>
+      </div>
+
+      <div class="flex flex-wrap gap-2 justify-end">
+        <button
+          type="button"
+          class="px-4 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+          (click)="closeWithdrawalDetails()"
+        >
+          Fechar
+        </button>
+
+        <button
+          *ngIf="selectedWithdrawal?.status === 'PENDING'"
+          type="button"
+          class="px-4 py-2 text-xs rounded-lg bg-red-600 text-white hover:bg-red-700"
+          (click)="rejectWithdrawal(selectedWithdrawal)"
+        >
+          Recusar
+        </button>
+
+        <button
+          *ngIf="selectedWithdrawal?.status === 'PENDING'"
+          type="button"
+          class="px-4 py-2 text-xs rounded-lg bg-green-600 text-white hover:bg-green-700"
+          (click)="approveWithdrawal(selectedWithdrawal)"
+        >
+          Aprovar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

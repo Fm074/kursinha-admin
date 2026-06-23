@@ -1,0 +1,34 @@
+<div class="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm p-4 w-full cursor-pointer">
+  <!-- Imagem do produto -->
+  <div class="w-16 h-16 bg-gray-100 dark:bg-gray-700 flex items-center justify-center rounded-lg">
+    <img
+      *ngIf="image"
+      [src]="image"
+      alt="Produto"
+      class="w-full h-full object-cover rounded-lg"
+    />
+    <svg *ngIf="!image"
+      class="w-10 h-10 text-gray-400 dark:text-gray-500"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor">
+      <path d="M4 5a2 2 0 012-2h12a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
+    </svg>
+  </div>
+
+  <!-- Nome do Produto -->
+  <div class="ml-4 flex-1">
+    <h2 class="text-gray-600 dark:text-gray-300 font-medium text-sm">{{ name }}</h2>
+  </div>
+
+  <!-- Status -->
+  <span
+    [ngClass]="{
+      'bg-red-100 text-red-600 dark:bg-red-200 dark:text-red-800': status === 'inactive',
+      'bg-green-100 text-green-600 dark:bg-green-200 dark:text-green-800': status === 'active'
+    }"
+    class="text-xs font-medium px-2 py-1 rounded-lg"
+  >
+    {{ status === 'active' ? 'Ativo' : 'Inativo' }}
+  </span>
+</div>

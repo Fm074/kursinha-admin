@@ -1,0 +1,617 @@
+<div class="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm">
+  <header>
+    <app-header-admin
+      title="Gestão de Usuários"
+      description="Crie, edite, modere e gerencie contas de usuários da plataforma."
+    ></app-header-admin>
+    <button
+      (click)="openCreateUser()"
+      class="text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 ml-auto w-fit block"
+    >
+      Novo Usuário
+    </button>
+  </header>
+
+  <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700 mt-4 mb-4">
+    <button
+      (click)="setTab('users')"
+      [ngClass]="{
+        'text-blue-600 border-b-2 border-blue-600': activeTab === 'users',
+        'text-gray-500': activeTab !== 'users'
+      }"
+      class="px-4 py-2 text-sm font-medium"
+    >
+      Usuários
+    </button>
+    <button
+      (click)="setTab('kyc')"
+      [ngClass]="{
+        'text-blue-600 border-b-2 border-blue-600': activeTab === 'kyc',
+        'text-gray-500': activeTab !== 'kyc'
+      }"
+      class="px-4 py-2 text-sm font-medium"
+    >
+      KYC / Saques
+    </button>
+  </div>
+
+  <ng-container *ngIf="activeTab === 'users'">
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+      <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label for="search" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+            Buscar usuário
+          </label>
+          <input
+            type="text"
+            id="search"
+            [(ngModel)]="searchOptions.search"
+            (ngModelChange)="onSearchChange()"
+            class="form-input block w-full rounded-lg border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:border-blue-500 focus:ring-blue-500"
+            placeholder="Digite nome ou email"
+          />
+        </div>
+
+        <div>
+          <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+            Tipo de usuário
+          </label>
+          <select
+            id="role"
+            [(ngModel)]="searchOptions.role"
+            (ngModelChange)="onFilterChange()"
+            class="form-select block w-full rounded-lg border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Todos</option>
+            <option value="PRODUCER">Produtor</option>
+            <option value="COPRODUCER">Co-produtor</option>
+            <option value="AFFILIATE">Afiliado</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="status" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+            Status
+          </label>
+          <select
+            id="status"
+            [(ngModel)]="searchOptions.status"
+            (ngModelChange)="onFilterChange()"
+            class="form-select block w-full rounded-lg border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Todos</option>
+            <option value="ACTIVE">Ativo</option>
+            <option value="SUSPENDED">Suspenso</option>
+            <option value="PENDING">Pendente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative overflow-x-auto">
+      <ng-container *ngIf="isLoadingUsers === true; else tableUsers">
+        <div class="flex justify-center items-center mt-20">
+          <app-loading-spinner heightClass="h-9" widthClass="w-9"></app-loading-spinner>
+        </div>
+      </ng-container>
+
+      <ng-template #tableUsers>
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-300 table-auto">
+          <thead class="text-xs text-gray-700 dark:text-gray-100 uppercase bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-600">
+            <tr>
+              <th scope="col" class="px-6 py-3">Nome</th>
+              <th scope="col" class="px-6 py-3">Email</th>
+              <th scope="col" class="px-6 py-3">Tipo</th>
+              <th scope="col" class="px-6 py-3">Status</th>
+              <th scope="col" class="px-6 py-3 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let user of users"
+              class="bg-white dark:bg-gray-900 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+            >
+              <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                {{ user.name }}
+              </td>
+              <td class="px-6 py-4">{{ user.email }}</td>
+              <td class="px-6 py-4 capitalize">{{ user.role }}</td>
+              <td class="px-6 py-4">
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium"
+                  [ngClass]="{
+                    'bg-green-100 dark:bg-green-700 dark:text-white': user.status === 'ACTIVE',
+                    'bg-yellow-100 dark:bg-yellow-700 dark:text-white': user.status === 'PENDING',
+                    'bg-red-100  dark:bg-red-700 dark:text-white': user.status === 'SUSPENDED'
+                  }"
+                >
+                  {{ user.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right space-x-2">
+                <ng-container *ngIf="user.status === 'PENDING'; else defaultActions">
+                  <button
+                    (click)="verificarDocumentos(user)"
+                    class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-xs px-5 py-2.5 me-2 mb-2 dark:focus:ring-yellow-900"
+                  >
+                    Verificar documentos
+                  </button>
+                </ng-container>
+
+                <ng-template #defaultActions>
+                  <button (click)="editUser(user)" class="text-blue-600 hover:underline text-sm dark:text-blue-400">
+                    Editar
+                  </button>
+
+                  <button
+                    (click)="impersonateUser(user)"
+                    class="text-green-600 hover:underline text-sm dark:text-green-400"
+                  >
+                    Logar
+                  </button>
+
+                  <button
+                    (click)="openStatusModal(user)"
+                    class="text-yellow-600 hover:underline text-sm dark:text-yellow-400"
+                  >
+                    {{ user.status === "ACTIVE" ? "Suspender" : "Ativar" }}
+                  </button>
+
+                  <button class="text-red-600 hover:underline text-sm dark:text-red-400 hidden">
+                    Excluir
+                  </button>
+                </ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </ng-template>
+    </div>
+
+    <nav aria-label="Page navigation example" class="mx-auto w-fit mt-8">
+      <ul class="flex items-center -space-x-px h-10 text-base">
+        <li>
+          <a
+            (click)="changePage(dataPagination.page - 1)"
+            [class.opacity-50]="dataPagination.page === 1"
+            [class.cursor-not-allowed]="dataPagination.page === 1"
+            class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            <span class="sr-only">Previous</span>
+            <svg
+              class="w-3 h-3 rtl:rotate-180"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 6 10"
+            >
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4" />
+            </svg>
+          </a>
+        </li>
+
+        <li *ngFor="let page of [].constructor(this.dataPagination.totalPages); let i = index">
+          <p
+            (click)="changePage(i + 1)"
+            class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            [ngClass]="{
+              'bg-primary-100 text-primary-700 border-primary-300 dark:bg-primary-700 dark:text-primary-100': i + 1 === dataPagination.page
+            }"
+          >
+            {{ i + 1 }}
+          </p>
+        </li>
+
+        <li>
+          <a
+            (click)="changePage(dataPagination.page + 1)"
+            [class.opacity-50]="dataPagination.page === dataPagination.totalPages"
+            [class.cursor-not-allowed]="dataPagination.page === dataPagination.totalPages"
+            class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+          >
+            <span class="sr-only">Next</span>
+            <svg
+              class="w-3 h-3 rtl:rotate-180"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 6 10"
+            >
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'kyc'">
+    <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-200">
+          Buscar KYC (nome, email)
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="kycSearch"
+          (ngModelChange)="onKycSearchChange()"
+          class="form-input block w-full rounded-lg border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 focus:border-blue-500 focus:ring-blue-500"
+          placeholder="Digite nome ou email"
+        />
+      </div>
+    </div>
+
+    <div class="flex gap-2 border-b border-gray-200 dark:border-gray-700 mb-4">
+      <button
+        (click)="setKycTab('pending')"
+        [ngClass]="{
+          'text-blue-600 border-b-2 border-blue-600': activeKycTab === 'pending',
+          'text-gray-500': activeKycTab !== 'pending'
+        }"
+        class="px-4 py-2 text-sm font-medium"
+      >
+        Pendentes
+      </button>
+      <button
+        (click)="setKycTab('approved')"
+        [ngClass]="{
+          'text-blue-600 border-b-2 border-blue-600': activeKycTab === 'approved',
+          'text-gray-500': activeKycTab !== 'approved'
+        }"
+        class="px-4 py-2 text-sm font-medium"
+      >
+        Aprovados / Saques habilitados
+      </button>
+    </div>
+
+    <div class="space-y-6">
+      <ng-container *ngIf="activeKycTab === 'pending'">
+        <div class="bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg p-4 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">KYC pendentes</h3>
+              <p class="text-xs text-gray-500">Status: SUBMITTED</p>
+            </div>
+          </div>
+
+          <ng-container *ngIf="isLoadingKyc; else kycTable">
+            <div class="flex justify-center py-6">
+              <app-loading-spinner heightClass="h-9" widthClass="w-9"></app-loading-spinner>
+            </div>
+          </ng-container>
+
+          <ng-template #kycTable>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-gray-500 dark:text-gray-300 table-auto">
+                <thead class="text-xs text-gray-700 dark:text-gray-100 uppercase bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-600">
+                  <tr>
+                    <th class="px-3 py-2">Produtor</th>
+                    <th class="px-3 py-2">Conta</th>
+                    <th class="px-3 py-2">Enviado</th>
+                    <th class="px-3 py-2 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="kycSubmissions.length === 0">
+                    <td colspan="4" class="px-3 py-4 text-center text-gray-400">Nenhum KYC pendente.</td>
+                  </tr>
+                  <tr
+                    *ngFor="let item of kycSubmissions"
+                    class="bg-white dark:bg-gray-900 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                  >
+                    <td class="px-3 py-3">
+                      <div class="font-semibold text-gray-900 dark:text-white">
+                        {{ item.client?.name || 'Sem nome' }}
+                      </div>
+                      <div class="text-xs text-gray-500">{{ item.client?.email }}</div>
+                    </td>
+                    <td class="px-3 py-3 capitalize">{{ item.accountType?.toLowerCase() }}</td>
+                    <td class="px-3 py-3 text-xs text-gray-500">
+                      {{ item.createdAt | date:'short' }}
+                    </td>
+                    <td class="px-3 py-3 text-right space-x-2">
+                      <button
+                        (click)="openKycModal(item)"
+                        class="text-xs px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                      >
+                        Documentos
+                      </button>
+                      <button
+                        (click)="approveKyc(item.clientId)"
+                        class="text-xs px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700"
+                      >
+                        Aprovar
+                      </button>
+                      <button
+                        (click)="rejectKyc(item.clientId)"
+                        class="text-xs px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                      >
+                        Reprovar
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <nav aria-label="Paginação KYC" class="mx-auto w-fit mt-4" *ngIf="kycPagination.totalPages > 1">
+              <ul class="flex flex-wrap items-center gap-1 h-8 text-sm">
+                <li>
+                  <a
+                    (click)="changeKycPage(kycPagination.page - 1)"
+                    [class.opacity-50]="kycPagination.page === 1"
+                    class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                  >
+                    ‹
+                  </a>
+                </li>
+                <li *ngFor="let p of [].constructor(kycPagination.totalPages); let i = index">
+                  <p
+                    (click)="changeKycPage(i + 1)"
+                    class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    [ngClass]="{
+                      'bg-primary-100 text-primary-700 border-primary-300 dark:bg-primary-700 dark:text-primary-100': i + 1 === kycPagination.page
+                    }"
+                  >
+                    {{ i + 1 }}
+                  </p>
+                </li>
+                <li>
+                  <a
+                    (click)="changeKycPage(kycPagination.page + 1)"
+                    [class.opacity-50]="kycPagination.page === kycPagination.totalPages"
+                    class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                  >
+                    ›
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </ng-template>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="activeKycTab === 'approved'">
+        <div class="bg-white dark:bg-gray-900 border dark:border-gray-700 rounded-lg p-4 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100">KYC aprovados e saques habilitados</h3>
+              <p class="text-xs text-gray-500">kyc=APPROVED & payout=ENABLED</p>
+            </div>
+          </div>
+
+          <ng-container *ngIf="isLoadingApproved; else approvedTable">
+            <div class="flex justify-center py-6">
+              <app-loading-spinner heightClass="h-9" widthClass="w-9"></app-loading-spinner>
+            </div>
+          </ng-container>
+
+          <ng-template #approvedTable>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-gray-500 dark:text-gray-300 table-auto">
+                <thead class="text-xs text-gray-700 dark:text-gray-100 uppercase bg-gray-50 dark:bg-gray-800 border-b dark:border-gray-600">
+                  <tr>
+                    <th class="px-3 py-2">Produtor</th>
+                    <th class="px-3 py-2">Conta</th>
+                    <th class="px-3 py-2">Status</th>
+                    <th class="px-3 py-2">Vendas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngIf="approvedProfiles.length === 0">
+                    <td colspan="4" class="px-3 py-4 text-center text-gray-400">Nenhum perfil habilitado.</td>
+                  </tr>
+                  <tr
+                    *ngFor="let profile of approvedProfiles"
+                    class="bg-white dark:bg-gray-900 border-b dark:border-gray-700"
+                  >
+                    <td class="px-3 py-3">
+                      <div class="font-semibold text-gray-900 dark:text-white">
+                        {{ profile.fullName || profile.client?.name || 'Sem nome' }}
+                      </div>
+                      <div class="text-xs text-gray-500">{{ profile.client?.email }}</div>
+                    </td>
+                    <td class="px-3 py-3 capitalize">{{ profile.accountType?.toLowerCase() }}</td>
+                    <td class="px-3 py-3 text-xs space-x-1">
+                      <span class="px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100">KYC {{ profile.kycStatus }}</span>
+                      <span class="px-2 py-1 rounded bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-100">Payout {{ profile.payoutStatus }}</span>
+                    </td>
+                    <td class="px-3 py-3 text-sm">{{ profile.salesCount ?? 0 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <nav aria-label="Paginação aprovados" class="mx-auto w-fit mt-4" *ngIf="approvedPagination.totalPages > 1">
+              <ul class="flex flex-wrap items-center gap-1 h-8 text-sm">
+                <li>
+                  <a
+                    (click)="changeApprovedPage(approvedPagination.page - 1)"
+                    [class.opacity-50]="approvedPagination.page === 1"
+                    class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                  >
+                    ‹
+                  </a>
+                </li>
+                <li *ngFor="let p of [].constructor(approvedPagination.totalPages); let i = index">
+                  <p
+                    (click)="changeApprovedPage(i + 1)"
+                    class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    [ngClass]="{
+                      'bg-primary-100 text-primary-700 border-primary-300 dark:bg-primary-700 dark:text-primary-100': i + 1 === approvedPagination.page
+                    }"
+                  >
+                    {{ i + 1 }}
+                  </p>
+                </li>
+                <li>
+                  <a
+                    (click)="changeApprovedPage(approvedPagination.page + 1)"
+                    [class.opacity-50]="approvedPagination.page === approvedPagination.totalPages"
+                    class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                  >
+                    ›
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </ng-template>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
+
+<div
+  *ngIf="showKycModal"
+  class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4"
+>
+  <div class="bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-3xl w-full max-h-[80vh] overflow-y-auto p-6">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Documentos do KYC</h3>
+        <p class="text-sm text-gray-500">
+          {{ selectedKyc?.client?.name }} · {{ selectedKyc?.client?.email }}
+        </p>
+      </div>
+      <button (click)="closeKycModal()" class="text-gray-500 hover:text-gray-800">✕</button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div>
+        <p class="font-semibold text-gray-800 dark:text-gray-100">Conta</p>
+        <p class="text-gray-500">{{ selectedKyc?.accountType }}</p>
+      </div>
+      <div>
+        <p class="font-semibold text-gray-800 dark:text-gray-100">Enviado em</p>
+        <p class="text-gray-500">{{ selectedKyc?.createdAt | date:'short' }}</p>
+      </div>
+      <div class="sm:col-span-2 border-t dark:border-gray-700 pt-2">
+        <p class="font-semibold text-gray-800 dark:text-gray-100 mb-2">Documentos</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div *ngIf="selectedKyc?.latestKycSubmission?.idFrontUrl" class="p-3 border rounded-lg dark:border-gray-700">
+            <a [href]="selectedKyc?.latestKycSubmission?.idFrontUrl" target="_blank" class="inline-flex items-center px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-300 hover:underline">
+              Frente do documento
+            </a>
+            <img
+              *ngIf="isImage(selectedKyc?.latestKycSubmission?.idFrontUrl)"
+              [src]="selectedKyc?.latestKycSubmission?.idFrontUrl"
+              alt="Frente do documento"
+              class="mt-2 max-h-48 w-full object-contain rounded"
+            />
+          </div>
+          <div *ngIf="selectedKyc?.latestKycSubmission?.idBackUrl" class="p-3 border rounded-lg dark:border-gray-700">
+            <a [href]="selectedKyc?.latestKycSubmission?.idBackUrl" target="_blank" class="inline-flex items-center px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-300 hover:underline">
+              Verso do documento
+            </a>
+            <img
+              *ngIf="isImage(selectedKyc?.latestKycSubmission?.idBackUrl)"
+              [src]="selectedKyc?.latestKycSubmission?.idBackUrl"
+              alt="Verso do documento"
+              class="mt-2 max-h-48 w-full object-contain rounded"
+            />
+          </div>
+          <div *ngIf="selectedKyc?.latestKycSubmission?.selfieUrl" class="p-3 border rounded-lg dark:border-gray-700">
+            <a [href]="selectedKyc?.latestKycSubmission?.selfieUrl" target="_blank" class="inline-flex items-center px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-300 hover:underline">
+              Selfie
+            </a>
+            <img
+              *ngIf="isImage(selectedKyc?.latestKycSubmission?.selfieUrl)"
+              [src]="selectedKyc?.latestKycSubmission?.selfieUrl"
+              alt="Selfie"
+              class="mt-2 max-h-48 w-full object-contain rounded"
+            />
+          </div>
+          <div *ngIf="selectedKyc?.latestKycSubmission?.addressProofUrl" class="p-3 border rounded-lg dark:border-gray-700">
+            <a [href]="selectedKyc?.latestKycSubmission?.addressProofUrl" target="_blank" class="inline-flex items-center px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-300 hover:underline">
+              Comprovativo
+            </a>
+            <img
+              *ngIf="isImage(selectedKyc?.latestKycSubmission?.addressProofUrl)"
+              [src]="selectedKyc?.latestKycSubmission?.addressProofUrl"
+              alt="Comprovativo"
+              class="mt-2 max-h-48 w-full object-contain rounded"
+            />
+          </div>
+          <div *ngIf="selectedKyc?.latestKycSubmission?.commercialCertificateUrl" class="p-3 border rounded-lg dark:border-gray-700">
+            <a [href]="selectedKyc?.latestKycSubmission?.commercialCertificateUrl" target="_blank" class="inline-flex items-center px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-300 hover:underline">
+              Certidão comercial
+            </a>
+            <img
+              *ngIf="isImage(selectedKyc?.latestKycSubmission?.commercialCertificateUrl)"
+              [src]="selectedKyc?.latestKycSubmission?.commercialCertificateUrl"
+              alt="Certidão comercial"
+              class="mt-2 max-h-48 w-full object-contain rounded"
+            />
+          </div>
+          <div *ngIf="selectedKyc?.latestKycSubmission?.representativeIdUrl" class="p-3 border rounded-lg dark:border-gray-700">
+            <a [href]="selectedKyc?.latestKycSubmission?.representativeIdUrl" target="_blank" class="inline-flex items-center px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-300 hover:underline">
+              Doc. representante
+            </a>
+            <img
+              *ngIf="isImage(selectedKyc?.latestKycSubmission?.representativeIdUrl)"
+              [src]="selectedKyc?.latestKycSubmission?.representativeIdUrl"
+              alt="Doc representante"
+              class="mt-2 max-h-48 w-full object-contain rounded"
+            />
+          </div>
+          <div *ngIf="selectedKyc?.latestKycSubmission?.representativeSelfieUrl" class="p-3 border rounded-lg dark:border-gray-700">
+            <a [href]="selectedKyc?.latestKycSubmission?.representativeSelfieUrl" target="_blank" class="inline-flex items-center px-3 py-1 rounded bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-300 hover:underline">
+              Selfie representante
+            </a>
+            <img
+              *ngIf="isImage(selectedKyc?.latestKycSubmission?.representativeSelfieUrl)"
+              [src]="selectedKyc?.latestKycSubmission?.representativeSelfieUrl"
+              alt="Selfie representante"
+              class="mt-2 max-h-48 w-full object-contain rounded"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 mt-6">
+      <button (click)="closeKycModal()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 dark:border-gray-600">
+        Fechar
+      </button>
+      <button (click)="approveKyc(selectedKyc?.clientId)" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700">
+        Aprovar
+      </button>
+      <button (click)="rejectKyc(selectedKyc?.clientId)" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
+        Reprovar
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-user-detail-modal
+  *ngIf="showDocModal"
+  [user]="selectedUser"
+  (close)="closeDocModal()"
+  (approved)="aprovateUser($event)"
+  (rejected)="rejectUser($event)"
+></app-user-detail-modal>
+
+<app-user-create-modal
+  (onClose)="showUserCreateModal($event)"
+  [open]="isShowUserCreateModal"
+  (saved)="getAllUsers()"
+></app-user-create-modal>
+
+<app-user-edit-modal
+  (onClose)="showUserEditModal($event)"
+  [open]="isShowUserEditModal"
+  (updated)="getAllUsers()"
+  [userData]="selectedUser"
+></app-user-edit-modal>
+
+<app-confirm-user-status-modal
+  [open]="showStatusModal"
+  [title]="statusModalTitle"
+  [message]="statusModalMessage"
+  [confirmButtonText]="statusModalButtonText"
+  [confirmButtonColor]="userToUpdate?.status === 'ACTIVE' ? 'red' : 'green'"
+  [user]="userToUpdate"
+  (confirmed)="handleStatusChange($event)"
+  (closed)="showStatusModal = false"
+></app-confirm-user-status-modal>

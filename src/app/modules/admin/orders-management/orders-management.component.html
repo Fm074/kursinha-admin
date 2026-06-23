@@ -1,0 +1,218 @@
+<div class="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-sm">
+  <app-header-admin
+    title="Vendas detalhadas"
+    description="Visualize e gerencie todas as vendas feitas na plataforma."
+  ></app-header-admin>
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+    <app-kpi-card
+      label="Total de Vendas"
+      [value]="stats.totalSales"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V9a4 4 0 00-8 0v2H6v6h12v-6h-2z"/></svg>'
+      iconBgClass="bg-blue-50 dark:bg-blue-900/20 text-blue-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Total Faturado"
+      [value]="stats.totalRevenue"
+      [isCurrency]="true"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      iconBgClass="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Receita Líquida"
+      [value]="stats.netRevenue"
+      [isCurrency]="true"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      iconBgClass="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Valor Reembolsado"
+      [value]="stats.refundAmount"
+      [isCurrency]="true"
+      icon='<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      iconBgClass="bg-rose-50 dark:bg-rose-900/20 text-rose-600"
+    ></app-kpi-card>
+  </div>
+
+  <!-- Filtro por Período -->
+  <app-period-filter
+    (periodSelected)="onFilterByPeriod($event)"
+  ></app-period-filter>
+
+  <!-- Botões de Tipos de Gráfico -->
+  <div class="flex gap-2 my-4">
+    <button
+      *ngFor="let tipo of tiposDeGrafico"
+      (click)="onChartTypeSelect(tipo)"
+      [ngClass]="{
+        'bg-blue-600 text-white': currentChartType === tipo,
+        'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border':
+          currentChartType !== tipo
+      }"
+      class="px-4 py-2 text-sm rounded-lg border hover:bg-blue-500 hover:text-white transition"
+    >
+      {{ tipo | titlecase }}
+    </button>
+  </div>
+  
+  <app-sales-chart [chartData]="salesData" [chartType]="currentChartType"></app-sales-chart>
+
+  <!-- Filtros -->
+  <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4 mb-6 mt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="relative">
+        <input
+          type="text"
+          placeholder="Pesquisar pelo comprador..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+          class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+        />
+        <svg class="w-4 h-4 absolute left-3 top-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="onFilterChange()"
+        class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+      >
+        <option value="">Todos os status</option>
+        <option value="PAID">Pago</option>
+        <option value="PENDING">Pendente</option>
+        <option value="REFUNDED">Reembolsado</option>
+        <option value="FAILED">Falhou</option>
+      </select>
+
+      <select
+        [(ngModel)]="selectedPayment"
+        (change)="onFilterChange()"
+        class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+      >
+        <option value="">Todos os métodos</option>
+        <option value="EXPRESS">Express</option>
+        <option value="REF">Referência</option>
+        <option value="manual">Manual</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div class="overflow-x-auto bg-white dark:bg-gray-900 rounded-lg shadow-md">
+    <table class="w-full text-sm text-left text-gray-600 dark:text-gray-200">
+      <thead
+        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400"
+      >
+        <tr>
+          <th class="px-4 py-3">ID</th>
+          <th class="px-4 py-3">Comprador</th>
+          <th class="px-4 py-3">Produto</th>
+          <th class="px-4 py-3">Valor</th>
+          <th class="px-4 py-3">Status</th>
+          <th class="px-4 py-3">Pagamento</th>
+          <th class="px-4 py-3">Date</th>
+          <th class="px-4 py-3">Acções</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let o of orders" class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+          <td class="px-4 py-3 font-mono text-xs">{{ o.id }}</td>
+          <td class="px-4 py-3">
+            <div class="flex flex-col">
+              <span class="font-medium text-gray-900 dark:text-white">{{ o.customerName }}</span>
+              <span class="text-xs text-gray-500">{{ o.customerEmail }}</span>
+            </div>
+          </td>
+          <td class="px-4 py-3">{{ o.items[0]?.product?.name || '—' }}</td>
+          <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">Kz {{ o.total | number : "1.2-2" }}</td>
+          <td class="px-4 py-3">
+            <span
+              class="px-2 py-1 text-xs font-bold rounded-full uppercase tracking-tighter"
+              [ngClass]="{
+                'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': o.status === 'PAID' || o.status === 'paid',
+                'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': o.status === 'PENDING' || o.status === 'pending',
+                'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400': o.status === 'REFUNDED' || o.status === 'failed'
+              }"
+            >
+              {{ (o.status === 'PAID' ? 'Pago' : (o.status === 'PENDING' ? 'Pendente' : (o.status === 'REFUNDED' ? 'Reembolsado' : o.status))) | titlecase }}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-xs font-semibold">{{ o.paymentMethod | uppercase }}</span>
+          </td>
+          <td class="px-4 py-3">
+            <span class="text-xs">{{ o.createdAt | date : "short" }}</span>
+          </td>
+          <td class="px-4 py-3 flex items-center gap-3">
+            <button
+              (click)="openSaleDetails(o)"
+              class="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold transition"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Ver
+            </button>
+            <button
+              *ngIf="o.status === 'PAID' || o.status === 'paid'"
+              (click)="cancelSale(o)"
+              class="inline-flex items-center gap-1.5 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-semibold transition"
+              title="Cancelar esta venda"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              Cancelar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Paginação -->
+  <div class="pagination-wrapper pt-4 border-t dark:border-gray-800" *ngIf="totalPaginas > 1">
+    <div class="pagination">
+      <button 
+        (click)="trocarPagina(paginaAtual - 1)"
+        [disabled]="paginaAtual === 1"
+        class="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 disabled:opacity-50 text-xs font-medium dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm"
+      >
+        Anterior
+      </button>
+      
+      <ng-container *ngFor="let page of getPaginasArray()">
+        <button 
+          *ngIf="page !== -1"
+          (click)="trocarPagina(page)"
+          [class.bg-blue-600]="paginaAtual === page"
+          [class.text-white]="paginaAtual === page"
+          [class.border-blue-600]="paginaAtual === page"
+          class="w-9 h-9 rounded-md border border-gray-300 dark:border-gray-700 text-xs font-bold transition shadow-sm hover:border-blue-500 dark:hover:border-blue-400 dark:text-gray-200"
+        >
+          {{ page }}
+        </button>
+        <span 
+          *ngIf="page === -1"
+          class="px-2 py-2 text-gray-500"
+        >
+          ...
+        </span>
+      </ng-container>
+
+      <button 
+        (click)="trocarPagina(paginaAtual + 1)"
+        [disabled]="paginaAtual === totalPaginas"
+        class="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 disabled:opacity-50 text-xs font-medium dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm"
+      >
+        Próximo
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-sales-details-modal
+  [isOpen]="isSaleDetailsOpen"
+  [sale]="selectedSale"
+  (close)="closeSaleDetails()"
+  (updated)="loadOrders()"
+></app-sales-details-modal>

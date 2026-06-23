@@ -1,0 +1,87 @@
+<!-- backdrop -->
+<div
+  class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+  role="dialog" aria-modal="true" aria-labelledby="otp-title"
+  *ngIf="isOpen"
+>
+  <!-- card -->
+  <div class="w-full max-w-md rounded-lg bg-white shadow dark:bg-gray-800 dark:border dark:border-gray-700">
+    <div class="flex items-start justify-between p-4 border-b dark:border-gray-700">
+      <h3 id="otp-title" class="text-lg font-semibold text-gray-900 dark:text-white">Verificação de segurança</h3>
+      <button type="button" (click)="close()"
+        class="inline-flex size-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white">
+        <svg class="h-5 w-5" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd"
+          d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414Z"
+          clip-rule="evenodd"/></svg>
+      </button>
+    </div>
+
+    <div class="space-y-5 p-6">
+      <p class="text-sm text-gray-600 dark:text-gray-300">
+        Enviámos um código de 6 dígitos para
+        <span class="font-medium text-gray-900 dark:text-white">{{ emailMasked }}</span>.
+        Digite o código abaixo para continuar.
+      </p>
+
+      <!-- 6 inputs explícitos -->
+      <div class="flex items-center justify-between gap-2">
+        <input #otpInput [value]="values[0]" (input)="onInput($event,0)" (keydown)="onKeydown($event,0)" (keyup)="onKeyup($event,0)" (paste)="onPaste($event,0)"
+          inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" name="otp-0"
+          class="w-12 h-12 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600"/>
+
+        <input #otpInput [value]="values[1]" (input)="onInput($event,1)" (keydown)="onKeydown($event,1)" (keyup)="onKeyup($event,1)" (paste)="onPaste($event,1)"
+          inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" name="otp-1"
+          class="w-12 h-12 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600"/>
+
+        <input #otpInput [value]="values[2]" (input)="onInput($event,2)" (keydown)="onKeydown($event,2)" (keyup)="onKeyup($event,2)" (paste)="onPaste($event,2)"
+          inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" name="otp-2"
+          class="w-12 h-12 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600"/>
+
+        <input #otpInput [value]="values[3]" (input)="onInput($event,3)" (keydown)="onKeydown($event,3)" (keyup)="onKeyup($event,3)" (paste)="onPaste($event,3)"
+          inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" name="otp-3"
+          class="w-12 h-12 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600"/>
+
+        <input #otpInput [value]="values[4]" (input)="onInput($event,4)" (keydown)="onKeydown($event,4)" (keyup)="onKeyup($event,4)" (paste)="onPaste($event,4)"
+          inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" name="otp-4"
+          class="w-12 h-12 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600"/>
+
+        <input #otpInput [value]="values[5]" (input)="onInput($event,5)" (keydown)="onKeydown($event,5)" (keyup)="onKeyup($event,5)" (paste)="onPaste($event,5)"
+          inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" name="otp-5"
+          class="w-12 h-12 text-center text-lg font-semibold rounded-lg border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-600 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-600"/>
+      </div>
+
+      <!-- erro -->
+      <div *ngIf="serverError"
+        class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-700/50 dark:bg-red-900/30 dark:text-red-200">
+        {{ serverError }}
+      </div>
+
+      <button type="button"
+        class="w-full rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+        [disabled]="!canSubmit || isLoading" (click)="submit()">
+        <span *ngIf="!isLoading">Verificar código</span>
+        <svg *ngIf="isLoading" aria-hidden="true"
+          class="mx-auto h-5 w-5 animate-spin fill-primary-200 text-gray-200 dark:text-gray-600" viewBox="0 0 100 101" fill="none">
+          <path d="M100 50.5908C100 78.2051 ..." fill="currentColor"></path>
+          <path d="M93.9676 39.0409C96.393 ..." fill="currentFill"></path>
+        </svg>
+      </button>
+
+      <div class="flex items-center justify-between text-sm">
+        <button type="button"
+          class="font-medium text-primary-600 hover:underline disabled:opacity-50 dark:text-primary-500"
+          [disabled]="countdown > 0" (click)="onResend()">
+          Reenviar código <span *ngIf="countdown>0">em {{ countdown }}s</span>
+        </button>
+
+        <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>Expira em 10 minutos</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

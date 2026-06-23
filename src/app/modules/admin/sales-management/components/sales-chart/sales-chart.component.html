@@ -1,0 +1,18 @@
+<div class="bg-white dark:bg-gray-900 rounded-lg shadow-md p-4">
+  <apx-chart
+    *ngIf="chartOptions.series"
+    [series]="chartOptions.series"
+    [chart]="chartOptions.chart!"
+    [xaxis]="chartOptions.xaxis!"
+    [yaxis]="chartOptions.yaxis!"
+    [dataLabels]="chartOptions.dataLabels!"
+    [stroke]="chartOptions.stroke!"
+    [tooltip]="chartOptions.tooltip!"
+    [title]="chartOptions.title!"
+  ></apx-chart>
+
+  <!--  [colors]="chartOptions.colors!"
+    [fill]="chartOptions.fill!"
+    [grid]="chartOptions.grid!"
+    [legend]="chartOptions.legend!" -->
+</div>

@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "dist/kursinha-web-2025/browser/**/*",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "dist/kursinha-web-2025/server/server.mjs",
+      "use": "@vercel/node"
+    }
+  ],
+  "buildCommand": "npm run vercel-build",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/kursinha-web-2025/server/server.mjs"
+    }
+  ]
+}

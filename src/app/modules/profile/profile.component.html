@@ -1,0 +1,265 @@
+<div class="container mx-auto p-4 md:p-6">
+  <!-- Cabecalho -->
+  <h1 class="text-xl md:text-2xl font-bold text-gray-800 dark:text-white mb-3 md:mb-4">
+    Minha conta
+  </h1>
+
+  <h2 class="text-lg md:text-xl font-semibold text-gray-700 dark:text-white">
+    Dados gerais
+  </h2>
+  <p class="text-gray-600 dark:text-gray-400 text-sm md:text-base">Informacoes sobre a sua conta</p>
+
+  <!-- Foto de Perfil -->
+  <div class="mb-4 mt-3 md:mt-4">
+    <h3 class="text-sm md:text-base font-medium text-gray-700 dark:text-white mb-2 md:mb-3">
+      Foto
+    </h3>
+    <div class="flex flex-col items-start">
+      <div
+        class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mb-3 md:mb-4 relative"
+      >
+        <!-- Preview da imagem -->
+        <img
+          [src]="profileImageUrl || ''"
+          alt="Preview"
+          class="w-full h-full rounded-full object-cover"
+          [class.hidden]="!profileImageUrl"
+        />
+
+        <!-- Icone padrao (mostra quando nao tem foto) -->
+        <svg
+          class="w-10 h-10 md:w-12 md:h-12 text-gray-400"
+          [class.hidden]="profileImageUrl"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+
+        <!-- Overlay de loading -->
+        <div
+          *ngIf="loading"
+          class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center"
+        >
+          <svg
+            class="animate-spin h-5 w-5 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+
+      <input
+        type="file"
+        id="profile-image"
+        accept="image/*"
+        class="hidden"
+        (change)="onFileSelected($event)"
+        #fileInput
+      />
+
+      <div class="flex flex-col sm:flex-row gap-2">
+        <button
+          type="button"
+          (click)="fileInput.click()"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs sm:text-sm px-3 py-2 sm:px-4 sm:py-2.5"
+          [disabled]="loading"
+        >
+          <span *ngIf="!loading">Alterar imagem</span>
+          <span *ngIf="loading" class="flex items-center gap-2">
+            <svg
+              class="animate-spin h-4 w-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            Enviando...
+          </span>
+        </button>
+
+        <button
+          *ngIf="profileImageUrl"
+          type="button"
+          (click)="removePhoto()"
+          class="text-gray-700 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-xs sm:text-sm px-3 py-2 sm:px-4 sm:py-2.5"
+          [disabled]="loading"
+        >
+          Remover foto
+        </button>
+      </div>
+
+      <div *ngIf="error" class="mt-2 text-xs sm:text-sm text-red-600 dark:text-red-400">
+        {{ error }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Campos em coluna unica no mobile e duas colunas a partir de md -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <!-- Nome -->
+    <div>
+      <h3 class="text-sm md:text-base font-medium text-gray-700 dark:text-white mb-2">
+        Nome (visivel no checkout)
+      </h3>
+      <input
+        type="text"
+        class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+        placeholder="Seu nome completo"
+        name="name"
+        [(ngModel)]="profileData.name"
+      />
+    </div>
+
+    <!-- WhatsApp -->
+    <div class="mb-2">
+      <h3 class="text-sm md:text-base font-medium text-gray-700 dark:text-white mb-2">
+        Telefone
+      </h3>
+      <input
+        type="tel"
+        class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-2"
+        placeholder="XXX XXX XXX"
+        name="phone"
+        [(ngModel)]="profileData.phone"
+      />
+      <p class="text-gray-500 dark:text-gray-400 text-xs">
+        Formato: XXX XXX XXX
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <!-- Senha -->
+    <div class="mb-2">
+      <h3 class="text-sm md:text-base font-medium text-gray-700 dark:text-white mb-2">
+        Senha
+      </h3>
+      <button
+        type="button"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs sm:text-sm px-3 py-2 sm:px-4 sm:py-2.5"
+      >
+        Alterar senha
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2">
+    <!-- Email -->
+    <div>
+      <h3 class="text-sm md:text-base font-medium text-gray-700 dark:text-white mb-2">
+        Email
+      </h3>
+      <input
+        type="email"
+        class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+        placeholder="Seu email"
+        name="email"
+        [(ngModel)]="profileData.email"
+      />
+    </div>
+  </div>
+
+  <!-- Endereco -->
+  <hr class="mt-3 border-gray-200 dark:border-gray-700" />
+  <div class="mt-3">
+    <h2 class="text-lg md:text-xl font-semibold text-gray-700 dark:text-white">
+      Endereco
+    </h2>
+    <p class="mb-2 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+      Para entrega das suas premiacoes
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="mb-3 md:mb-4 md:col-span-2">
+        <label
+          for="address"
+          class="block mb-2 text-sm font-medium text-gray-700 dark:text-white"
+        >
+          Endereco completo
+        </label>
+        <input
+          type="text"
+          id="address"
+          class="bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+          placeholder="Ex: Rua da Missao, numero 123 - Bairro, Cidade"
+          name="address"
+          [(ngModel)]="profileData.address"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Botao -->
+  <div class="mt-5 md:mt-6 space-y-2">
+    <div *ngIf="saveSuccess" class="text-sm text-green-600 dark:text-green-400">
+      {{ saveSuccess }}
+    </div>
+    <div *ngIf="saveError" class="text-sm text-red-600 dark:text-red-400">
+      {{ saveError }}
+    </div>
+    <button
+      type="button"
+      class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-60"
+      (click)="saveProfile()"
+      [disabled]="savingProfile"
+    >
+      <span *ngIf="!savingProfile">Salvar alteracoes</span>
+      <span *ngIf="savingProfile" class="flex items-center justify-center gap-2">
+        <svg
+          class="animate-spin h-4 w-4 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        Salvando...
+      </span>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,145 @@
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+>
+  <div
+    class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-2xl w-full p-6 relative"
+  >
+    <!-- Botão de fechar -->
+    <button
+      (click)="onClose()"
+      class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+    >
+      ✕
+    </button>
+
+    <!-- Título -->
+    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+      Order #{{ sale?.id }}
+    </h2>
+
+    <!-- Informações principais -->
+    <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+      <div>
+        <span class="text-gray-500">Customer:</span>
+        <p class="font-medium text-gray-800 dark:text-gray-200">
+          {{ sale?.customerName }} <br />
+          <span class="text-xs text-gray-500">{{ sale?.customerEmail }}</span>
+        </p>
+      </div>
+      <div>
+        <span class="text-gray-500">Phone:</span>
+        <p class="font-medium text-gray-800 dark:text-gray-200">
+          {{ sale?.customerPhone }}
+        </p>
+      </div>
+      <div>
+        <span class="text-gray-500">Status:</span>
+        <p
+          class="font-semibold"
+          [ngClass]="{
+            'text-green-600': sale?.status === 'PAID',
+            'text-yellow-600': sale?.status === 'PENDING',
+            'text-red-600': sale?.status === 'FAILED'
+          }"
+        >
+          {{ sale?.status }}
+        </p>
+      </div>
+      <div>
+        <span class="text-gray-500">Payment Method:</span>
+        <p class="font-medium text-gray-800 dark:text-gray-200">
+          {{ sale?.paymentMethod | uppercase }}
+        </p>
+      </div>
+      <div>
+        <span class="text-gray-500">Subtotal:</span>
+        <p class="font-medium text-gray-800 dark:text-gray-200">
+          {{ sale?.subtotal | currency : "AOA" }}
+        </p>
+      </div>
+      <div>
+        <span class="text-gray-500">Total:</span>
+        <p class="font-bold text-gray-800 dark:text-gray-200">
+          {{ sale?.total | currency : "AOA" }}
+        </p>
+      </div>
+      <div class="col-span-2">
+        <span class="text-gray-500">Status Notes:</span>
+        <p class="text-gray-700 dark:text-gray-300 italic">
+          {{ sale?.statusNotes }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Lista de itens -->
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+      Items
+    </h3>
+    <div class="divide-y divide-gray-200 dark:divide-gray-700 mb-6">
+      <div *ngFor="let item of sale?.items" class="flex justify-between py-2">
+        <div>
+          <p class="font-medium text-gray-800 dark:text-gray-200">
+            {{ item.product?.name }}
+          </p>
+          <p class="text-xs text-gray-500">
+            by {{ item.product?.client?.name }} ({{
+              item.product?.client?.email
+            }})
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-gray-800 dark:text-gray-200">
+            Qty: {{ item.quantity }}
+          </p>
+          <p class="font-semibold text-gray-800 dark:text-gray-100">
+            {{ item.price | currency : "AOA" }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comprovativo (se manual) -->
+    <div *ngIf="sale?.notes" class="mb-6">
+      <span class="text-gray-500">Payment Proof:</span>
+      <a
+        [href]="sale?.notes?.split('Payment Proof: ')[1]"
+        target="_blank"
+        class="text-blue-600 hover:underline block truncate"
+      >
+        {{ sale?.notes?.split("Payment Proof: ")[1] }}
+      </a>
+    </div>
+
+    <!-- Ações -->
+    <div class="flex justify-end gap-2">
+      <button
+        class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+        (click)="onClose()"
+      >
+        Fechar
+      </button>
+
+      <!-- Botões extra só se for manual e ainda pendente -->
+      <ng-container
+        *ngIf="
+          sale?.paymentMethod?.toUpperCase() === 'MANUAL' &&
+          sale?.status === 'PENDING'
+        "
+      >
+        <button
+          class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+          (click)="approveSale()"
+        >
+          Aprovar
+        </button>
+        <button
+          class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+          (click)="rejectSale()"
+        >
+          Reprovar
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>

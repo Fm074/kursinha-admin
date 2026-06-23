@@ -1,0 +1,49 @@
+<div
+  *ngIf="isOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+>
+  <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl">
+    <!-- Cabeçalho -->
+    <div class="flex items-center justify-between p-4 border-b">
+      <h3 class="text-xl font-semibold text-gray-900">Detalhes da Venda</h3>
+      <button
+        type="button"
+        class="text-gray-400 hover:text-gray-900"
+        (click)="fecharModal()"
+      >
+        <i class="material-icons">close</i>
+      </button>
+    </div>
+
+    <!-- Corpo -->
+    <div class="p-6 space-y-4 text-sm text-gray-700">
+      <p><strong>Produto:</strong> {{ venda.produto }} ({{ venda.tipo }})</p>
+      <p><strong>Produtor:</strong> {{ venda.produtor }}</p>
+      <p><strong>Cliente:</strong> {{ venda.clienteNome }} ({{ venda.clienteEmail }})</p>
+      <p><strong>Valor Pago:</strong> {{ venda.valorPago | currency:'AOA':'symbol-narrow' }}</p>
+      <p><strong>Método de Pagamento:</strong> {{ venda.metodoPagamento }}</p>
+      <p>
+        <strong>Status:</strong>
+        <span [ngClass]="statusCor" class="font-bold capitalize">{{ venda.status }}</span>
+      </p>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="flex justify-end items-center p-4 border-t">
+      <button
+        class="text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 font-medium rounded-lg px-4 py-2 mr-2"
+        (click)="fecharModal()"
+      >
+        Fechar
+      </button>
+
+      <button
+        *ngIf="venda.status === 'pago'"
+        class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg px-4 py-2"
+        (click)="confirmarReembolso()"
+      >
+        Reembolsar
+      </button>
+    </div>
+  </div>
+</div>

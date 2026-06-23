@@ -1,0 +1,94 @@
+/* Custom styles */
+:host {
+  display: block;
+  min-height: calc(100vh - 4rem);
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Dark mode transitions */
+@media (prefers-color-scheme: dark) {
+  .bg-white {
+    transition: background-color 0.3s ease;
+  }
+}
+
+/* Animation for buttons */
+button {
+  transition: all 0.2s ease;
+  &:hover {
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6B7280;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* ApexCharts custom styles */
+.apexcharts-tooltip {
+  background: #ffffff !important;
+  color: #111827;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+  
+  .apexcharts-tooltip-title {
+    background: #f3f4f6 !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    font-weight: 600;
+  }
+}
+
+.dark {
+  .apexcharts-tooltip {
+    background: #1f2937 !important;
+    color: #f9fafb;
+    
+    .apexcharts-tooltip-title {
+      background: #374151 !important;
+      border-bottom: 1px solid #4b5563 !important;
+    }
+  }
+  
+  .apexcharts-gridline {
+    stroke: #374151;
+  }
+  
+  .apexcharts-text {
+    fill: #9ca3af !important;
+  }
+}

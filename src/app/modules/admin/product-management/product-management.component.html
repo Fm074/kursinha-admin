@@ -1,0 +1,230 @@
+<div class="p-4 bg-white dark:bg-gray-900 rounded-lg">
+  <app-header-admin
+    title="Gestão dos produtos"
+    description="Crie, edite, modere e faça a gestão dos produtos da plataforma"
+  ></app-header-admin>
+
+  <!-- Filters -->
+  <div
+    class="flex flex-col gap-4 sm:flex-row sm:items-end justify-between mb-6"
+  >
+    <div class="flex flex-col gap-4 sm:flex-row w-full">
+      <!-- Product name search -->
+      <div class="w-full sm:w-1/4">
+        <label
+          for="search"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Pesquisar produtos</label
+        >
+        <input
+          type="text"
+          id="search"
+          placeholder="Nome do produto"
+          [(ngModel)]="filters.search"
+          (ngModelChange)="onNameSearch()"
+          class="border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white dark:bg-gray-800 text-sm rounded-lg w-full p-2.5"
+        />
+      </div>
+
+      <!-- Category filter -->
+      <div class="w-full sm:w-1/4">
+        <label
+          for="category"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Categoria</label
+        >
+        <select
+          id="category"
+          [(ngModel)]="filters.category"
+          (ngModelChange)="onFilterChange()"
+          class="border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white dark:bg-gray-800 text-sm rounded-lg w-full p-2.5"
+        >
+          <option value="">Todos</option>
+          <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+
+      <!-- Status filter -->
+      <div class="w-full sm:w-1/4">
+        <label
+          for="status"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Status</label
+        >
+        <select
+          id="status"
+          [(ngModel)]="filters.status"
+          (ngModelChange)="onFilterChange()"
+          class="border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white dark:bg-gray-800 text-sm rounded-lg w-full p-2.5"
+        >
+          <option value="">Todos</option>
+          <option value="ACTIVE">Ativos</option>
+          <option value="PENDING">Pendente</option>
+          <option value="INACTIVO">Inactivo</option>
+        </select>
+      </div>
+
+      <!-- Producer filter -->
+      <div class="w-full sm:w-1/4">
+        <label
+          for="producer"
+          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >Produtor</label
+        >
+        <select
+          id="producer"
+          [(ngModel)]="filters.producer"
+          (ngModelChange)="onFilterChange()"
+          class="border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white dark:bg-gray-800 text-sm rounded-lg w-full p-2.5"
+        >
+          <option value="">Todos</option>
+          <option *ngFor="let p of producers" [value]="p">{{ p }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div
+    *ngIf="loading"
+    class="text-center py-8 flex items-center justify-center"
+  >
+    <app-loading-spinner
+      heightClass="h-9"
+      widthClass="w-9"
+    ></app-loading-spinner>
+  </div>
+
+  <!-- Product listing -->
+  <div
+    *ngIf="!loading"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+  >
+    <div
+      *ngFor="let product of products"
+      class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow cursor-pointer"
+      (click)="getProductInfo(product)"
+    >
+      <!-- Product image -->
+      <div
+        class="h-[160px] w-full bg-gray-200 dark:bg-gray-700 rounded-lg mb-4 flex items-center justify-center"
+      >
+        <span *ngIf="!product.mediaUrl" class="text-gray-500 dark:text-gray-300"
+          >No image</span
+        >
+        <img
+          *ngIf="product.mediaUrl"
+          [src]="product.mediaUrl"
+          alt="Product image"
+          class="h-full w-full object-cover rounded-lg"
+        />
+      </div>
+
+      <h5 class="text-lg font-bold text-gray-900 dark:text-white mb-1">
+        {{ product.name }}
+      </h5>
+      <p class="text-sm text-gray-500 dark:text-gray-300 mb-1">
+        👤 {{ product.client?.name || "Unknown producer" }}
+      </p>
+      <p class="text-sm text-gray-500 dark:text-gray-300 mb-1">
+        🏷️ {{ product.category }}
+      </p>
+
+      <span
+        [ngClass]="{
+          'bg-yellow-100 text-yellow-800 dark:bg-yellow-200 dark:text-yellow-900':
+            product.status === 'PENDING',
+          'bg-green-100 text-green-800 dark:bg-green-200 dark:text-green-900':
+            product.status === 'ACTIVE',
+          'bg-red-100 text-red-800 dark:bg-red-200 dark:text-red-900':
+            product.status === 'REJECTED'
+        }"
+        class="text-xs font-medium me-2 px-2.5 py-0.5 rounded"
+      >
+        {{ getStatusText(product.status) }}
+      </span>
+
+      <!-- Action buttons -->
+      <div class="flex flex-wrap mt-4 gap-2">
+        <ng-container *ngIf="product.status === 'PENDING'">
+          <button
+            (click)="approveProduct(product.id)"
+            class="text-white bg-green-600 hover:bg-green-700 font-medium rounded text-sm px-4 py-2"
+          >
+            Ativar
+          </button>
+          <button
+            (click)="rejectProduct(product.id)"
+            class="text-white bg-red-600 hover:bg-red-700 font-medium rounded text-sm px-4 py-2"
+          >
+            Rejeitar
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="product.status === 'ACTIVE'">
+          <button
+            (click)="pauseProduct(product.id)"
+            class="text-white bg-gray-600 hover:bg-gray-700 font-medium rounded text-sm px-4 py-2"
+          >
+            Pausar
+          </button>
+          <button
+            *ngIf="product?.sales?.length"
+            (click)="viewPerformance(product.id)"
+            class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded text-sm px-4 py-2"
+          >
+            Ver performance
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div
+    *ngIf="!loading && products.length === 0"
+    class="text-center py-8"
+  >
+    <p class="text-gray-500 dark:text-gray-400">
+      Nenhum produto encontrado com os filtros aplicados
+    </p>
+  </div>
+
+  <!-- Pagination -->
+  <div
+    *ngIf="!loading && products.length > 0"
+    class="flex justify-center mt-6"
+  >
+    <nav aria-label="Pagination">
+      <ul class="inline-flex -space-x-px text-sm">
+        <li>
+          <button
+            (click)="onPageChange(filters.page - 1)"
+            [disabled]="filters.page === 1"
+            class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-l-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            Anterior
+          </button>
+        </li>
+        <li *ngFor="let page of getPageNumbers()">
+          <button
+            (click)="onPageChange(page)"
+            [class.bg-primary-600]="page === filters.page"
+            class="px-3 py-2 leading-tight text-gray-500 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            {{ page }}
+          </button>
+        </li>
+        <li>
+          <button
+            (click)="onPageChange(filters.page + 1)"
+            [disabled]="filters.page * 10 >= totalProducts"
+            class="px-3 py-2 leading-tight text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-300 rounded-r-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50"
+          >
+            Próximo
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
